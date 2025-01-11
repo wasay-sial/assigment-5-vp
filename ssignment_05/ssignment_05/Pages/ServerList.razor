@@ -1,0 +1,99 @@
+﻿@page "/ServerList"
+@using ssignment_05.Models
+
+<!-- Banner Image -->
+<div class="text-center my-4">
+    <img src="https://via.placeholder.com/1200x300?text=Server+Management+Dashboard"
+         alt="Server Banner"
+         class="img-fluid rounded"
+         style="max-width: 100%; height: auto;" />
+</div>
+
+<h3 class="text-center mt-4">City Buttons</h3>
+<div class="d-flex justify-content-center flex-wrap mb-4">
+    @foreach (var city in cities)
+    {
+        <button class="btn btn-primary m-2">@city</button>
+    }
+</div>
+
+<h4 class="text-center mt-4">Server List</h4>
+<div class="d-flex justify-content-center mb-4">
+    <input class="form-control w-50 me-2" @bind="searchTerm" placeholder="Search servers..." />
+    <button class="btn btn-success" @onclick="SearchServers">Search</button>
+</div>
+
+<table class="table table-striped table-bordered w-75 mx-auto">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (filteredServers.Any())
+        {
+            @foreach (var server in filteredServers)
+            {
+                <tr>
+                    <td>@server.Id</td>
+                    <td>
+                        @server.Name
+                        <img src="https://via.placeholder.com/50"
+                             alt="Server Icon"
+                             class="ms-2 rounded-circle"
+                             style="width: 30px; height: 30px;" />
+                    </td>
+                    <td>@server.City</td>
+                    <td class="text-center">
+                        <span class="badge @(server.IsOnline ? "bg-success" : "bg-danger")">
+                            @(server.IsOnline ? "Online" : "Offline")
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-warning btn-sm me-2" @onclick="() => EditServer(server.Id)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteServer(server.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No servers found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private string searchTerm = string.Empty;
+    private List<Server> filteredServers = ServersRepository.GetServers();
+    private List<string> cities = CitiesRepository.GetCities();
+
+    private void SearchServers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredServers = ServersRepository.GetServers();
+        }
+        else
+        {
+            filteredServers = ServersRepository.SearchServers(searchTerm);
+        }
+    }
+
+    private void EditServer(int serverId)
+    {
+        // Edit server logic
+    }
+
+    private void DeleteServer(int serverId)
+    {
+        ServersRepository.DeleteServer(serverId);
+        filteredServers = ServersRepository.GetServers();
+    }
+}
